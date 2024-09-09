@@ -1,6 +1,8 @@
 import pickle
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class StereoDepthMap:
     def __init__(self, calibration_file):
@@ -57,6 +59,54 @@ class StereoDepthMap:
         return depth_map
 
 
+    def generate_3d_plot(self, disparity_map, left_img_path, step=30):
+        # Чтение исходного изображения для получения размеров
+        img_left = cv2.imread(left_img_path, cv2.IMREAD_GRAYSCALE)
+        h, w = img_left.shape
+
+        # Создание сетки координат (x, y)
+        Q = cv2.reprojectImageTo3D(disparity_map, self._get_Q_matrix())
+        
+        # Извлечение точек с валидными диспаратностями
+        mask = disparity_map > disparity_map.min()
+        points_3d = Q[mask]
+        colors = img_left[mask]  # Получение значений яркости точек для цвета
+
+        points_3d = points_3d[::step]
+        colors = colors[::step]
+
+        # Построение 3D-графика
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Разделение точек на координаты
+        xs = points_3d[:, 0]
+        ys = points_3d[:, 1]
+        zs = points_3d[:, 2]
+        ax.scatter(xs, ys, zs, c=colors, cmap='gray', s=1)
+
+        ax.set_xlabel('X axis')
+        ax.set_ylabel('Y axis')
+        ax.set_zlabel('Z axis')
+
+        plt.show()
+
+    def _get_Q_matrix(self):
+        # Параметры камеры
+        focal_length = self.camera_matrix_left[0, 0]  # Предполагаем, что fx для левой камеры используется как фокусное расстояние
+        cx = self.camera_matrix_left[0, 2]
+        cy = self.camera_matrix_left[1, 2]
+        baseline = np.linalg.norm(self.T)  # Длина базиса (расстояние между камерами)
+
+        # Матрица Q для преобразования диспаратности в 3D
+        Q = np.float32([
+            [1, 0, 0, -cx],
+            [0, 1, 0, -cy],
+            [0, 0, 0, focal_length],
+            [0, 0, -1/baseline, 0]
+        ])
+        return Q
+
     def display_depth_map(self, depth_map):
         imS = cv2.resize(depth_map, (960, 540))
         cv2.imshow('Depth Map', imS)
@@ -69,3 +119,4 @@ class StereoDepthMap:
 depth_map = StereoDepthMap("calibration_data.pkl")
 depth = depth_map.compute_depth_map("D:\Dev\StereoPair\StereoPair\left.jpg", "D:\Dev\StereoPair\StereoPair\\right.jpg")
 depth_map.display_depth_map(depth)
+depth_map.generate_3d_plot(depth, 'D:\Dev\StereoPair\StereoPair\left.jpg')
