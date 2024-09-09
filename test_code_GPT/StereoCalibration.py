@@ -80,6 +80,6 @@ class StereoCalibration:
 
 
 
-stereo_calib = StereoCalibration("D:\Dev\StereoPair\onli_first_cam", "D:\Dev\StereoPair\second_camera", "D:\Dev\StereoPair\\first_camera", "D:\Dev\StereoPair\second_camera")
-stereo_calib.calibrate((28, 25), 10.0)  # Размер шахматной доски и размер клетки
+stereo_calib = StereoCalibration("D:\Dev\StereoPair\img\onli_left_cam", "D:\Dev\StereoPair\img\onli_right_cam", "D:\Dev\StereoPair\img\sterio\left_cam", "D:\Dev\StereoPair\img\sterio\\right_cam")
+stereo_calib.calibrate((11, 11), 10.0)  # Размер шахматной доски и размер клетки
 stereo_calib.save_calibration("calibration_data.pkl")

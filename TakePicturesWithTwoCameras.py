@@ -68,8 +68,8 @@ def take_photos():
 
     # Генерируем имена файлов с текущей датой и временем
     time_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path1 = os.path.join("first_camera", f"cam1_{time_stamp}.jpg")
-    path2 = os.path.join("second_camera", f"cam2_{time_stamp}.jpg")
+    path1 = os.path.join("D:\Dev\StereoPair\img\sterio\left_cam", f"cam1_{time_stamp}.jpg")
+    path2 = os.path.join("D:\Dev\StereoPair\img\sterio\\right_cam", f"cam2_{time_stamp}.jpg")
 
     # Сохраняем изображения
     cv2.imwrite(path1, frame1)

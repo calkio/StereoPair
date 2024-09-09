@@ -22,33 +22,44 @@ class StereoDepthMap:
             self.R = calibration_data['R']
             self.T = calibration_data['T']
 
-    def compute_depth_map(self, left_image_path, right_image_path):
-        left_img = cv2.imread(left_image_path)
-        right_img = cv2.imread(right_image_path)
+    def compute_depth_map(self, left_img_path, right_img_path):
+        # Чтение изображений
+        img_left = cv2.imread(left_img_path, cv2.IMREAD_GRAYSCALE)
+        img_right = cv2.imread(right_img_path, cv2.IMREAD_GRAYSCALE)
+        
+        # Параметры SGBM (можно изменять для улучшения результата)
+        min_disparity = 0
+        num_disparities = 16 * 6  # Должно быть кратно 16
+        block_size = 5  # Размер блока для расчета диспаратности
+        uniqueness_ratio = 10
+        speckle_window_size = 100
+        speckle_range = 32
+        disp12_max_diff = 1
 
-        gray_left = cv2.cvtColor(left_img, cv2.COLOR_BGR2GRAY)
-        gray_right = cv2.cvtColor(right_img, cv2.COLOR_BGR2GRAY)
+        # Создание объекта SGBM
+        stereo = cv2.StereoSGBM_create(
+            minDisparity=min_disparity,
+            numDisparities=num_disparities,
+            blockSize=block_size,
+            uniquenessRatio=uniqueness_ratio,
+            speckleWindowSize=speckle_window_size,
+            speckleRange=speckle_range,
+            disp12MaxDiff=disp12_max_diff
+        )
 
-        # Настройка SGBM для построения карты глубины
-        stereo = cv2.StereoSGBM_create(minDisparity=0,
-                                       numDisparities=16 * 4,  # Чем больше значение, тем точнее карта
-                                       blockSize=5,
-                                       P1=8 * 3 * 5**2,
-                                       P2=32 * 3 * 5**2,
-                                       disp12MaxDiff=1,
-                                       uniquenessRatio=15,
-                                       speckleWindowSize=0,
-                                       speckleRange=2,
-                                       preFilterCap=63)
+        # Построение карты диспаратности
+        disparity = stereo.compute(img_left, img_right).astype(np.float32) / 16.0
 
-        disparity = stereo.compute(gray_left, gray_right)
-        depth_map = cv2.normalize(disparity, disparity, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+        # Нормализация карты глубины для отображения
+        depth_map = cv2.normalize(disparity, None, 0, 255, cv2.NORM_MINMAX)
         depth_map = np.uint8(depth_map)
 
         return depth_map
 
+
     def display_depth_map(self, depth_map):
-        cv2.imshow('Depth Map', depth_map)
+        imS = cv2.resize(depth_map, (960, 540))
+        cv2.imshow('Depth Map', imS)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -56,5 +67,5 @@ class StereoDepthMap:
 
 
 depth_map = StereoDepthMap("calibration_data.pkl")
-depth = depth_map.compute_depth_map("D:\Dev\StereoPair\left.jpg", "D:\Dev\StereoPair\right.jpg")
+depth = depth_map.compute_depth_map("D:\Dev\StereoPair\StereoPair\left.jpg", "D:\Dev\StereoPair\StereoPair\\right.jpg")
 depth_map.display_depth_map(depth)
