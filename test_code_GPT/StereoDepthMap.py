@@ -114,9 +114,88 @@ class StereoDepthMap:
         cv2.destroyAllWindows()
 
 
+    def generate_3d_plot_from_points(self, disparity_map, points):
+        """
+        Строит 3D карту по коллекции точек и карте глубины.
+        
+        :param disparity_map: Карта глубины (диспаратности).
+        :param points: Коллекция точек с координатами (x, y) на изображении.
+        :param step: Шаг для прореживания точек, чтобы не отображать слишком много данных.
+        """
+        # Подготовка 3D точек для заданных координат
+        Q = cv2.reprojectImageTo3D(disparity_map, self._get_Q_matrix())
+
+        # Создание пустых массивов для хранения 3D координат и цвета
+        points_3d = []
+        colors = []
+
+        for (x, y) in points:
+            # Преобразуем x и y в целые числа
+            x, y = int(x), int(y)
+            
+            # Извлечение 3D координат для каждой точки
+            point_3d = Q[y, x]  # Q имеет форму (h, w, 3), поэтому обращаемся как к (y, x)
+            if np.all(point_3d != 0):  # Пропускаем невалидные точки
+                points_3d.append(point_3d)
+
+                # Добавляем яркость или цвет для точки
+                color = disparity_map[y, x]
+                colors.append(color)
+
+        # Преобразуем списки в массивы NumPy для удобства работы
+        points_3d = np.array(points_3d)
+        colors = np.array(colors)
+
+        # Построение 3D графика
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Разделение точек на координаты
+        xs = points_3d[:, 0]
+        ys = points_3d[:, 1]
+        zs = points_3d[:, 2]
+        ax.scatter(xs, ys, zs, c=colors, cmap='gray', s=1)
+
+        ax.set_xlabel('X axis')
+        ax.set_ylabel('Y axis')
+        ax.set_zlabel('Z axis')
+
+        plt.show()
+
+
+
+    def find_chessboard_corners(self, image_path, pattern_size=(11, 11)):
+        """
+        Находит координаты узлов шахматной доски на изображении.
+        
+        :param image_path: Путь к изображению с шахматной доской.
+        :param pattern_size: Размерность шахматной доски (число внутренних углов по ширине и высоте).
+        :return: Коллекция координат узлов (углов) шахматной доски.
+        """
+        # Чтение изображения
+        image = cv2.imread(image_path)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Поиск углов шахматной доски
+        ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
+
+        if ret:
+            # Уточнение углов (опционально, можно удалить, если не нужно)
+            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+            corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+
+            # Возврат координат углов
+            return corners.reshape(-1, 2)  # Преобразование в массив координат (x, y)
+        else:
+            raise ValueError("Шахматная доска не найдена на изображении.")
+
 
 
 depth_map = StereoDepthMap("calibration_data.pkl")
 depth = depth_map.compute_depth_map("D:\Dev\StereoPair\StereoPair\left.jpg", "D:\Dev\StereoPair\StereoPair\\right.jpg")
+
 depth_map.display_depth_map(depth)
-depth_map.generate_3d_plot(depth, 'D:\Dev\StereoPair\StereoPair\left.jpg')
+# depth_map.generate_3d_plot(depth, 'D:\Dev\StereoPair\StereoPair\left.jpg')
+
+points = depth_map.find_chessboard_corners('D:\Dev\StereoPair\StereoPair\left.jpg')
+depth_map.generate_3d_plot_from_points(depth, points)

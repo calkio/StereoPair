@@ -42,11 +42,11 @@ class StereoCalibration:
     def calibrate(self, chessboard_size, square_size):
         # Калибровка левой камеры
         obj_points_left, img_points_left = self.find_corners(self.left_images_folder, chessboard_size, square_size)
-        ret_left, self.camera_matrix_left, self.dist_coeffs_left, _, _ = cv2.calibrateCamera(obj_points_left, img_points_left, chessboard_size, None, None)
+        ret_left, self.camera_matrix_left, self.dist_coeffs_left, _, _ = cv2.calibrateCamera(obj_points_left, img_points_left, (3264, 2448), None, None)
 
         # Калибровка правой камеры
         obj_points_right, img_points_right = self.find_corners(self.right_images_folder, chessboard_size, square_size)
-        ret_right, self.camera_matrix_right, self.dist_coeffs_right, _, _ = cv2.calibrateCamera(obj_points_right, img_points_right, chessboard_size, None, None)
+        ret_right, self.camera_matrix_right, self.dist_coeffs_right, _, _ = cv2.calibrateCamera(obj_points_right, img_points_right, (3264, 2448), None, None)
 
         # Стереокалибровка для парных изображений
         stereo_obj_points, stereo_img_points_left = self.find_corners(self.stereo_left_folder, chessboard_size, square_size)
@@ -60,7 +60,7 @@ class StereoCalibration:
             stereo_obj_points, stereo_img_points_left, stereo_img_points_right,
             self.camera_matrix_left, self.dist_coeffs_left,
             self.camera_matrix_right, self.dist_coeffs_right,
-            chessboard_size, criteria=(cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 30, 1e-6)
+            (3264, 2448), criteria=(cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 30, 1e-6)
         )
 
 
