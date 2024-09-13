@@ -22,7 +22,6 @@ class CameraCalibrator:
         # Настройка координат углов шахматной доски
         self.objp = np.zeros((chessboard_size[0] * chessboard_size[1], 3), np.float32)
         self.objp[:, :2] = np.mgrid[0:chessboard_size[0], 0:chessboard_size[1]].T.reshape(-1, 2)
-        self.objp *= square_size  # Масштабируем под реальный размер квадрата
 
     def find_corners(self):
         # Получаем список изображений из папки
@@ -32,7 +31,12 @@ class CameraCalibrator:
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             # Поиск углов шахматной доски
-            ret, corners = cv2.findChessboardCorners(gray, self.chessboard_size, None)
+            # ret, corners = cv2.findChessboardCorners(gray, self.chessboard_size, None, flags=cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
+            ret, corners = cv2.findChessboardCornersSB(gray, self.chessboard_size, None, flags=cv2.CALIB_CB_EXHAUSTIVE + cv2.CALIB_CB_ACCURACY)
+
+            # if not ret:
+                # ret, corners = cv2.findChessboardCorners(gray, (25, 28), None, flags=cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
+                # ret, corners = cv2.findChessboardCornersSB(gray, (25, 28), None, flags=cv2.CALIB_CB_EXHAUSTIVE + cv2.CALIB_CB_ACCURACY)
 
             if ret:
                 self.obj_points.append(self.objp)
@@ -40,7 +44,7 @@ class CameraCalibrator:
 
                 # Отрисовка углов на изображении (для проверки)
                 cv2.namedWindow('Corners', cv2.WINDOW_NORMAL)
-                cv2.resizeWindow('Corners', 1920, 1080)  # указываем размеры окна
+                cv2.resizeWindow('Corners', 960, 580)  # указываем размеры окна
                 cv2.drawChessboardCorners(img, self.chessboard_size, corners, ret)
                 cv2.imshow('Corners', img)
                 cv2.waitKey(500)
@@ -67,5 +71,5 @@ class CameraCalibrator:
         print("Калибровка завершена. Параметры сохранены в 'metrics.yml'")
 
 # Пример использования
-calibrator = CameraCalibrator(r'D:\Dev\StereoPair\img\onli_left_cam', chessboard_size=(11, 11), square_size=10.0)
+calibrator = CameraCalibrator(r'D:\Dev\StereoPair\img\sterio\right_cam', chessboard_size=(28, 25), square_size=10.0)
 calibrator.calibrate_camera()

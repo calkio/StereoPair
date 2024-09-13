@@ -56,10 +56,10 @@ class AxisDrawer:
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             
             # Поиск углов шахматной доски
-            ret, corners = cv2.findChessboardCorners(gray, self.chessboard_size, None)
+            ret, corners = cv2.findChessboardCornersSB(gray, self.chessboard_size, None)
             
             if ret:
-                corners2 = cv2.cornerSubPix(gray, corners, (28, 20), (-1, -1), self.criteria)
+                corners2 = cv2.cornerSubPix(gray, corners, (28, 25), (-1, -1), self.criteria)
                 
                 # Определение векторов вращения и трансляции
                 result = cv2.solvePnPRansac(self.objp, corners2, self.mtx, self.dist)
@@ -75,7 +75,7 @@ class AxisDrawer:
                 img = self.draw_axes(img, corners2, imgpts)
 
                 # Уменьшение изображения для удобства просмотра
-                scale_factor = 0.5  # Коэффициент уменьшения изображения (50% от оригинального размера)
+                scale_factor = 0.25  # Коэффициент уменьшения изображения (50% от оригинального размера)
                 img_resized = cv2.resize(img, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_AREA)
                 
                 cv2.imshow('img', img_resized)
@@ -89,5 +89,5 @@ class AxisDrawer:
 
 
 # Пример использования
-axis_drawer = AxisDrawer(r'D:\Dev\StereoPair\StereoPair\AllCalibrationCam\metrics.yml', r'D:\Dev\StereoPair\img\onli_left_cam\*.jpg', chessboard_size=(11, 11))
+axis_drawer = AxisDrawer(r'D:\Dev\StereoPair\StereoPair\AllCalibrationCam\metrics.yml', r'D:\Dev\StereoPair\img\sterio\right_cam\*.jpg', chessboard_size=(28, 25))
 axis_drawer.process_images()
