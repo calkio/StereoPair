@@ -3,8 +3,8 @@ import numpy as np
 import glob
 import pickle
 
-count_vertical_point = 25
-count_horizontal_point = 28
+count_vertical_point = 6
+count_horizontal_point = 9
 
 
 def find_nodes(path, name_file):
@@ -34,7 +34,7 @@ def find_nodes(path, name_file):
             count_valid += 1
             imgpoints.append(corners)
             objpoints.append(objp)
-    print(count_valid)
+    print(count_valid, "images found")
 
     ret_cam, mtx_cam, dist_cam, rvecs_cam, tvecs_cam = cv2.calibrateCamera(objpoints, imgpoints, image_size, None, None)
     # Сохранение параметров калибровки в файл
@@ -53,9 +53,9 @@ def find_nodes(path, name_file):
 
 def stereo_calibrate(frames_folder1, frames_folder2, output_file):
     # Загрузите данные калибровки из файлов
-    with open(f"D:\Dev\StereoPair\\first_camera.pkl", 'rb') as f:
+    with open(r"D:\Dev\StereoPair\StereoPair\first_camera.pkl", 'rb') as f:
         calibration_data1 = pickle.load(f)
-    with open(f"D:\Dev\StereoPair\second_camera.pkl", 'rb') as f:
+    with open(r"D:\Dev\StereoPair\StereoPair\second_camera.pkl", 'rb') as f:
         calibration_data2 = pickle.load(f)
 
     mtx1 = calibration_data1['mtx']
@@ -84,7 +84,7 @@ def stereo_calibrate(frames_folder1, frames_folder2, output_file):
     # Измените это, если стереокалибровка не хорошая.
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.0001)
 
-    world_scaling = 10.0  # Измените это на реальный размер квадрата в мире. Или нет.
+    world_scaling = 0.019  # Измените это на реальный размер квадрата в мире. Или нет.
 
     # Координаты квадратов в пространстве шахматной доски
     objp = np.zeros((count_horizontal_point * count_vertical_point, 3), np.float32)
@@ -100,7 +100,7 @@ def stereo_calibrate(frames_folder1, frames_folder2, output_file):
     imgpoints_right = []
     # Координаты шахматной доски в пространстве шахматной доски.
     objpoints = []  # 3D точки в реальном мире
-
+    count = 0
     for frame1, frame2 in zip(c1_images, c2_images):
         gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
         gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
@@ -113,6 +113,8 @@ def stereo_calibrate(frames_folder1, frames_folder2, output_file):
             objpoints.append(objp)
             imgpoints_left.append(corners1)
             imgpoints_right.append(corners2)
+            count += 1
+    print(count, "images found")
 
     stereocalibration_flags = cv2.CALIB_FIX_INTRINSIC
     ret, CM1, dist1, CM2, dist2, R, T, E, F = cv2.stereoCalibrate(objpoints, imgpoints_left, imgpoints_right, mtx1, dist1,
@@ -122,7 +124,7 @@ def stereo_calibrate(frames_folder1, frames_folder2, output_file):
 
     # Запишите полученные значения в файл
     with open(output_file, 'wb') as f:
-        pickle.dump({'R': R, 'T': T}, f)
+        pickle.dump({'ret': ret, 'CM1': CM1, 'dist1': dist1, 'CM2': CM2, 'dist2': dist2, 'R': R, 'T': T, 'E': E, 'F': F}, f)
 
     return R, T
 
@@ -130,7 +132,7 @@ def stereo_calibrate(frames_folder1, frames_folder2, output_file):
 # find_nodes('onli_first_cam/*.jpg', 'first_camera')
 # find_nodes('onli_second_cam/*.jpg', 'second_camera')
 
-stereo_calibrate('first_camera/*.jpg', 'second_camera/*.jpg', 'calibration_pair.pckl')
+stereo_calibrate(r'D:\Dev\StereoPair\img\sterio\left_cam\*.jpg', r'D:\Dev\StereoPair\img\sterio\right_cam\*.jpg', 'calibration_pair.pckl')
 
 
 # # Путь к изображениям для калибровки левой и правой камеры

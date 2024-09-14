@@ -71,5 +71,5 @@ class CameraCalibrator:
         print("Калибровка завершена. Параметры сохранены в 'metrics.yml'")
 
 # Пример использования
-calibrator = CameraCalibrator(r'D:\Dev\StereoPair\img\sterio\right_cam', chessboard_size=(28, 25), square_size=10.0)
+calibrator = CameraCalibrator(r'D:\Dev\StereoPair\img\sterio\left_cam', chessboard_size=(9, 6), square_size=19.0)
 calibrator.calibrate_camera()

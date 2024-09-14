@@ -50,10 +50,10 @@ class CameraCalibration:
 
 
 
-chessboard_size=(9, 6)
-square_size=19
+chessboard_size=(7, 4)
+square_size=10
 calib = CameraCalibration(chessboard_size, square_size)
-images_left = glob.glob(r'D:\Dev\StereoPair\img\sterio\left_cam\*.jpg')
-images_right = glob.glob(r'D:\Dev\StereoPair\img\sterio\right_cam\*.jpg')
+images_left = glob.glob(r'D:\Dev\StereoPair\img\sterio\left_cam\*.png')
+images_right = glob.glob(r'D:\Dev\StereoPair\img\sterio\right_cam\*.png')
 calib.find_corners(images_left, images_right)
 calib.calibrate(cv2.imread(images_left[0]).shape[:2])

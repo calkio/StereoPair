@@ -29,8 +29,8 @@ class StereoRectification:
     
 
 
-images_left = glob.glob(r'D:\Dev\StereoPair\img\sterio\left_cam\*.jpg')
-images_right = glob.glob(r'D:\Dev\StereoPair\img\sterio\right_cam\*.jpg')
+images_left = glob.glob(r'D:\Dev\StereoPair\img\sterio\left_cam\*.png')
+images_right = glob.glob(r'D:\Dev\StereoPair\img\sterio\right_cam\*.png')
 rect = StereoRectification()
 rect.rectify(cv2.imread(images_left[0]).shape[:2])
 

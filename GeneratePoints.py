@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-count_vertical_point = 25
-count_horizontal_point = 28
+count_vertical_point = 6
+count_horizontal_point = 9
 
 def find_chessboard_corners(img_path1, img_path2, output_file1, output_file2):
     # Читаем изображения
@@ -24,4 +24,4 @@ def find_chessboard_corners(img_path1, img_path2, output_file1, output_file2):
         np.savetxt(output_file2, corners2.reshape(-1, 2))
 
 # Пример использования
-find_chessboard_corners(r'D:\Dev\StereoPair\first_camera\test_left.jpg', r'D:\Dev\StereoPair\second_camera\test_right.jpg', r'D:\Dev\StereoPair\GenerateData\NodesLeft.txt', r'D:\Dev\StereoPair\GenerateData\NodesRight.txt')
+find_chessboard_corners(r"D:\Dev\StereoPair\img\sterio\left_cam\cam1_20240914_152313.jpg", r"D:\Dev\StereoPair\img\sterio\right_cam\cam2_20240914_152313.jpg", r'D:\Dev\StereoPair\StereoPair\GenerateData\NodesLeft.txt', r'D:\Dev\StereoPair\StereoPair\GenerateData\NodesRight.txt')

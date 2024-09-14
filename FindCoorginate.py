@@ -97,10 +97,47 @@ def read_coordinates(file_path1, file_path2):
             points_2d.append((int(x1), int(y1), int(x2), int(y2)))
     return points_2d
 
+
+def build_depth_map(self, imgL, imgR):
+    left_map1 = self.rectification_params['left_map1']
+    left_map2 = self.rectification_params['left_map2']
+    right_map1 = self.rectification_params['right_map1']
+    right_map2 = self.rectification_params['right_map2']
+    Q = self.rectification_params['Q']
+
+    # Применение ремаппинга
+    rectified_left = cv.remap(imgL, left_map1, left_map2, cv.INTER_LINEAR)
+    rectified_right = cv.remap(imgR, right_map1, right_map2, cv.INTER_LINEAR)
+
+    # Настройка и вычисление карты глубины
+
+    # stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
+
+
+    # Создание объекта SGBM
+    stereo = cv.StereoSGBM_create(
+        minDisparity=-16,
+        numDisparities=16 * 10,
+        blockSize=5,
+        disp12MaxDiff=1,
+        uniquenessRatio=15,
+        speckleWindowSize=0,
+        speckleRange=2,
+        preFilterCap=63,
+        mode=cv.STEREO_SGBM_MODE_SGBM_3WAY
+    )
+    disparity = stereo.compute(cv.cvtColor(rectified_left, cv.COLOR_BGR2GRAY),
+                                cv.cvtColor(rectified_right, cv.COLOR_BGR2GRAY))
+
+    # Возвращаем карту глубины
+    depth_map = cv.reprojectImageTo3D(disparity, Q)
+    return rectified_left, rectified_right, depth_map, disparity
+
+
 # Пример использования
-stereo_params_file = 'D:\Dev\StereoPair\calibration_pair.pckl'
-cam1_calib_file = 'D:\Dev\StereoPair\\first_camera.pkl'
-cam2_calib_file = 'D:\Dev\StereoPair\second_camera.pkl'
+stereo_params_file = r'D:\Dev\StereoPair\StereoPair\calibration_pair.pckl'
+cam1_calib_file = r'D:\Dev\StereoPair\StereoPair\first_camera.pkl'
+cam2_calib_file = r'D:\Dev\StereoPair\StereoPair\second_camera.pkl'
 
 # points_2d = [
 #     # (938, 1425, 784, 1391), 
@@ -110,7 +147,7 @@ cam2_calib_file = 'D:\Dev\StereoPair\second_camera.pkl'
 #     (1692, 1503, 1490, 1476)
 #     ]
 
-points_2d = read_coordinates(r'D:\Dev\StereoPair\GenerateData\NodesLeft.txt', r'D:\Dev\StereoPair\GenerateData\NodesRight.txt')
+points_2d = read_coordinates(r'D:\Dev\StereoPair\StereoPair\GenerateData\NodesLeft.txt', r'D:\Dev\StereoPair\StereoPair\GenerateData\NodesRight.txt')
 points_3d = []
 for point in points_2d:
     x1, y1, x2, y2 = point

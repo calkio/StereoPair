@@ -52,8 +52,7 @@ class StereoCalibration:
         stereo_obj_points, stereo_img_points_left = self.find_corners(self.stereo_left_folder, chessboard_size, square_size)
         _, stereo_img_points_right = self.find_corners(self.stereo_right_folder, chessboard_size, square_size)
 
-        if len(stereo_img_points_left) != len(stereo_img_points_right):
-            raise ValueError(f"Количество валидных парных изображений не совпадает: левых — {len(stereo_img_points_left)}, правых — {len(stereo_img_points_right)}")
+    
 
         # Стереокалибровка
         _, self.camera_matrix_left, self.dist_coeffs_left, self.camera_matrix_right, self.dist_coeffs_right, self.R, self.T, _, _ = cv2.stereoCalibrate(
@@ -80,6 +79,6 @@ class StereoCalibration:
 
 
 
-stereo_calib = StereoCalibration("D:\Dev\StereoPair\img\onli_left_cam", "D:\Dev\StereoPair\img\onli_right_cam", "D:\Dev\StereoPair\img\sterio\left_cam", "D:\Dev\StereoPair\img\sterio\\right_cam")
-stereo_calib.calibrate((28, 25), 10.0)  # Размер шахматной доски и размер клетки
+stereo_calib = StereoCalibration(r"D:\Dev\StereoPair\img\onli_left_cam", r"D:\Dev\StereoPair\img\onli_right_cam", r"D:\Dev\StereoPair\img\sterio\left_cam", r"D:\Dev\StereoPair\img\sterio\right_cam")
+stereo_calib.calibrate((9, 6), 19.0)  # Размер шахматной доски и размер клетки
 stereo_calib.save_calibration("calibration_data.pkl")

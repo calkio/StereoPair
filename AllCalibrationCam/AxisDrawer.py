@@ -89,5 +89,5 @@ class AxisDrawer:
 
 
 # Пример использования
-axis_drawer = AxisDrawer(r'D:\Dev\StereoPair\StereoPair\AllCalibrationCam\metrics.yml', r'D:\Dev\StereoPair\img\sterio\right_cam\*.jpg', chessboard_size=(28, 25))
+axis_drawer = AxisDrawer(r'D:\Dev\StereoPair\StereoPair\AllCalibrationCam\metrics.yml', r'D:\Dev\StereoPair\img\sterio\left_cam\*.jpg', chessboard_size=(9, 6))
 axis_drawer.process_images()
